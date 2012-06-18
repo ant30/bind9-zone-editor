@@ -1,0 +1,10 @@
+<div metal:use-macro="view.global_template">
+    <h2>Zones</h2>
+    <div metal:fill-slot="content">
+        <ul>
+            <li tal:repeat="zone zones">
+                <a href="/${zone}">${zone}</a>
+            </li>
+        </ul>
+    </div>
+</div>

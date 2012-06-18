@@ -1,0 +1,12 @@
+<div metal:use-macro="view.global_template">
+    <h2>${zonename}</h2>
+    <div metal:fill-slot="content">
+        <ul>
+            <li tal:repeat="record records">
+                <a href="/${zonename}/${record.name}/${record.type}">${record.name}</a> 
+                <span>${record.type}</span>
+                <span>${record.value}</span>
+            </li>
+        </ul>
+    </div>
+</div>

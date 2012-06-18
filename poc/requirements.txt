@@ -1,0 +1,6 @@
+pyramid
+WebTest
+nose
+deforms
+dnspython
+easyzone

@@ -1,0 +1,18 @@
+<div metal:use-macro="view.global_template">
+    <metal metal:fill-slot="extrastatic">
+        <link rel="stylesheet" href="/deform_static/css/form.css"
+              type="text/css"
+                />
+        <script type="text/javascript"
+                src="/deform_static/scripts/jquery-1.4.2.min.js"></script>
+        <script type="text/javascript"
+                src="/deform_static/scripts/deform.js"></script>
+<script type="text/javascript">
+   deform.load()
+</script>
+    </metal>
+    <div metal:fill-slot="content">
+        <h2><a href="/${zonename}">${zonename}</a></h2>
+        <div tal:content="structure form"></div>
+    </div>
+</div>
