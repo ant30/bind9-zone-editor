@@ -1,9 +1,14 @@
 
 zones = {
-        'yaco.es': 'db.yaco.es',
+        'example.com': 'db.example.com',
         }
 
 protected_zones = (
-        'trac.yaco.es',
-        'ldap.yaco.es',
+        'mail.example.com',
+        'www.example.com',
         )
+
+try:
+    from local_settings import *
+except:
+    pass
