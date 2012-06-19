@@ -4,7 +4,7 @@
         <ul>
             <li tal:repeat="record records">
                 <a href="/${zonename}/${record.name}/${record.type}">${record.name}</a> 
-                <span>${record.type}</span>
+                <span>${record.recordtype}</span>
                 <span>${record.value}</span>
             </li>
         </ul>

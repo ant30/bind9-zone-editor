@@ -18,8 +18,8 @@ class NsZone:
                 if record and record.items and isinstance(record.items[0], str):
                     values = ' '.join(record.items)
                     self.records.append({'name': name,
-                                         'type': record_type,
-                                         'value': values
+                                         'recordtype': record_type,
+                                         'target': values
                                         })
 
     def get_records(self, name=None, record_type=None, name_exact=None):
@@ -32,7 +32,7 @@ class NsZone:
 
         if record_type:
             def filter_type(item):
-                return item['type'] == record_type
+                return item['recordtype'] == record_type
             filters.append(filter_type)
 
         if name_exact:
@@ -50,7 +50,7 @@ class NsZone:
 
     def get_record(self, name, rtype):
         return filter(lambda item: item['name'] == name and
-                        item['type'] == rtype, self.records)[0]
+                        item['recordtype'] == rtype, self.records)[0]
 
     def add_record(self, name, record_type, target, ttl=DEFAULT_TTL):
         if name.endswith(self.zone.domain):
@@ -61,7 +61,8 @@ class NsZone:
             entry = '.'.join((name, self.zone.domain))
 
         #import ipdb; ipdb.set_trace()
-        self.zone.add_name(entry)
+        if entry not in self.zone.names:
+            self.zone.add_name(entry)
         newname = self.zone.names[entry]
         newname.ttl = ttl
         newname.records(record_type, create=True).add(target)

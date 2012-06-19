@@ -48,7 +48,6 @@ class ZoneViews(Layouts):
     @view_config(renderer="templates/record.pt", route_name="record")
     def record_edit(self):
 
-
         zonename = self.request.matchdict['zonename']
         recordtype = self.request.matchdict['recordtype']
         recordname = self.request.matchdict['recordname']
@@ -56,17 +55,26 @@ class ZoneViews(Layouts):
         zone = NsZone(zonename, zonefile)
 
         schema = Record()
+        record = zone.get_record(recordname, recordtype)
         form = deform.Form(schema, buttons=('submit',))
         response = {"zonename": zonename,
-                    "record": zone.get_record(recordname, recordtype),
-                    "form": form.render()}
+                    "record": zone.get_record(recordname, recordtype)}
+        if record:
+            response["form"] = form.render(record)
+        else:
+            response["form"] = form.render()
 
         if 'submit' in self.request.POST:
             controls = self.request.POST.items()
             try:
                 data = form.validate(controls)
             except ValidationVailure, e:
-                response['form'] = e.render()
-            print data
+                if record:
+                    response['form'] = e.render(record)
+                else:
+                    response['form'] = e.render()
+            zone.add_record(data['name'],
+                            data['recordtype'],
+                            data['target'])
         return response
 
