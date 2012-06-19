@@ -76,5 +76,6 @@ class ZoneViews(Layouts):
             zone.add_record(data['name'],
                             data['recordtype'],
                             data['target'])
+            zone.save()
         return response
 

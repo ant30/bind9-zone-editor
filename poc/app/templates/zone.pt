@@ -3,9 +3,9 @@
     <div metal:fill-slot="content">
         <ul>
             <li tal:repeat="record records">
-                <a href="/${zonename}/${record.name}/${record.type}">${record.name}</a> 
+                <a href="/${zonename}/${record.name}/${record.recordtype}">${record.name}</a>
                 <span>${record.recordtype}</span>
-                <span>${record.value}</span>
+                <span>${record.target}</span>
             </li>
         </ul>
     </div>

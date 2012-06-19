@@ -60,12 +60,18 @@ class NsZone:
         else:
             entry = '.'.join((name, self.zone.domain))
 
-        #import ipdb; ipdb.set_trace()
         if entry not in self.zone.names:
             self.zone.add_name(entry)
         newname = self.zone.names[entry]
         newname.ttl = ttl
-        newname.records(record_type, create=True).add(target)
+        record =  newname.records(record_type, create=True)
+        if record is None:
+            newname.records(record_type).add(str(target))
+        else:
+            for item in record.items:
+                record.delete(item)
+            record.add(str(target))
+
 
     def save(self):
         self.zone.save()
