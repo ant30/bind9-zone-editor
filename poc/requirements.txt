@@ -1,6 +1,6 @@
 pyramid
 WebTest
 nose
-deforms
+deform
 dnspython
 easyzone
