@@ -53,12 +53,18 @@ class ZoneViews(Layouts):
         recordname = self.request.matchdict['recordname']
         zonefile = settings.zones[zonename]
         zone = NsZone(zonename, zonefile)
+        protected = recordname in settings.protected_zones
 
         schema = Record()
         record = zone.get_record(recordname, recordtype)
-        form = deform.Form(schema, buttons=('submit',))
+
         response = {"zonename": zonename,
                     "record": zone.get_record(recordname, recordtype)}
+        if not protected:
+            form = deform.Form(schema, buttons=('submit',))
+        else:
+            form = deform.Form(schema)
+
         if record:
             response["form"] = form.render(record)
         else:
@@ -73,9 +79,13 @@ class ZoneViews(Layouts):
                     response['form'] = e.render(record)
                 else:
                     response['form'] = e.render()
-            zone.add_record(data['name'],
+            if not protected:
+                zone.add_record(data['name'],
                             data['recordtype'],
                             data['target'])
-            zone.save()
+                zone.save()
+            else:
+                # Return 403 (No editable)
+                pass
         return response
 
