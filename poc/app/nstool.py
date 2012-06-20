@@ -1,6 +1,6 @@
 from easyzone import easyzone
 from easyzone.zone_reload import ZoneReload
-
+from datetime import datetime
 
 DEFAULT_TTL = 3600
 RNDC_CMD = '/usr/sbin/rndc'
@@ -72,10 +72,28 @@ class NsZone:
                 record.delete(item)
             record.add(str(target))
 
+    def update_serial(self):
+        root = self.zone.get_root()
+        today = datetime.now()
+        today_str = today.strftime("%Y%m%d")
+        old_serial = root.soa.get_serial()
+        if str(old_serial).startswith(today_str):
+            change = str(old_serial)[8:]
+            inc_change = int(change) + 1
+            serial = long("%s%02d" % (today_str, inc_change))
+        else:
+            serial = long("%s01" % today_str)
+        root.soa.set_serial(serial)
+
+    def get_serial(self):
+        root = self.zone.get_root()
+        return root.soa.get_serial()
 
     def save(self):
         self.zone.save()
 
     def apply(self):
+        self.update_serial()
+        self.save()
         r = ZoneReload(rndc=RNDC_CMD)
         r.reload(self.zone.domain)

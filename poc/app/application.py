@@ -11,6 +11,7 @@ def main():
 
     config.add_route('favicon', 'favicon.ico')
     config.add_route('record', '{zonename}/{recordname}/{recordtype}')
+    config.add_route('apply', '{zonename}/applychanges')
     config.add_route('zoneview', '{zonename}')
     config.add_route('zonelist', '')
 

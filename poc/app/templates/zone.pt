@@ -1,12 +1,13 @@
 <div metal:use-macro="view.global_template">
-    <h2>${zonename}</h2>
     <div metal:fill-slot="content">
-        <ul>
-            <li tal:repeat="record records">
-                <a href="/${zonename}/${record.name}/${record.recordtype}">${record.name}</a>
-                <span>${record.recordtype}</span>
-                <span>${record.target}</span>
-            </li>
-        </ul>
+    <h2>${zonename}</h2>
+    <a href="/${zonename}/applychanges">Apply Changes</a>
+     <ul>
+         <li tal:repeat="record records">
+             <a href="/${zonename}/${record.name}/${record.recordtype}">${record.name}</a>
+             <span>${record.recordtype}</span>
+             <span>${record.target}</span>
+         </li>
+     </ul>
     </div>
 </div>

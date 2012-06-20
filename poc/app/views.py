@@ -89,3 +89,13 @@ class ZoneViews(Layouts):
                 pass
         return response
 
+    @view_config(renderer="templates/applychanges.pt", route_name="apply")
+    def applychanges(self):
+        zonename = self.request.matchdict['zonename']
+        zonefile = settings.zones[zonename]
+        zone = NsZone(zonename, zonefile)
+        msg = ''
+        zone.apply()
+        return {"zonename": zonename,
+                "msg": msg,
+                }
