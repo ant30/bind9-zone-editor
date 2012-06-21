@@ -2,8 +2,10 @@
     <div metal:fill-slot="content">
     <h2>${zonename}</h2>
     <a href="/${zonename}/applychanges">Apply Changes</a>
+    <a href="/${zonename}/add">Add Name</a>
      <ul>
          <li tal:repeat="record records">
+             <span tal:condition="record.protected">Protected</span>
              <a href="/${zonename}/${record.name}/${record.recordtype}">${record.name}</a>
              <span>${record.recordtype}</span>
              <span>${record.target}</span>

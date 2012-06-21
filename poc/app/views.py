@@ -3,6 +3,7 @@ import deform
 import colander
 
 from pyramid.view import view_config
+from pyramid.httpexceptions import HTTPFound, HTTPForbidden
 
 from layouts import Layouts
 
@@ -40,9 +41,52 @@ class ZoneViews(Layouts):
         zonename = self.request.matchdict['zonename']
         zonefile = settings.zones[zonename]
         zone = NsZone(zonename, zonefile)
+        records = zone.get_records()
+
+        for record in records:
+            if record['name'] in settings.protected_zones:
+                record['protected'] = True
+            else:
+                record['protected'] = False
+
         return {"zonename": zonename,
-                "records": zone.get_records(),
+                "records": records,
                 }
+
+
+
+    @view_config(renderer="templates/record.pt", route_name="record_add")
+    def record_add(self):
+
+        zonename = self.request.matchdict['zonename']
+        zonefile = settings.zones[zonename]
+        zone = NsZone(zonename, zonefile)
+        protected = recordname in settings.protected_zones
+
+        schema = Record()
+
+        form = deform.Form(schema, buttons=('submit',))
+
+        response["form"] = form.render()
+
+        if 'submit' in self.request.POST:
+            controls = self.request.POST.items()
+            try:
+                data = form.validate(controls)
+            except ValidationVailure, e:
+                if record:
+                    response['form'] = e.render(record)
+                    return response
+                else:
+                    response['form'] = e.render()
+            if data['name'] not in protected_zones:
+                zone.add_record(data['name'],
+                                data['recordtype'],
+                                data['target'])
+                zone.save()
+            else:
+                return HTTPForbidden()
+        return HTTPFound(location=request.url('zone', zonename))
 
 
     @view_config(renderer="templates/record.pt", route_name="record")
@@ -54,40 +98,36 @@ class ZoneViews(Layouts):
         zonefile = settings.zones[zonename]
         zone = NsZone(zonename, zonefile)
         protected = recordname in settings.protected_zones
+        response = {"zonename": zonename}
+
+        if self.request.POST and protected:
+            return HTTPForbidden("You can not modify this domain name")
+
+        elif protected:
+            response['protected'] = protected
+            response['record'] = record
+            return response
 
         schema = Record()
-        record = zone.get_record(recordname, recordtype)
+        form = deform.Form(schema, buttons=('submit',))
 
-        response = {"zonename": zonename,
-                    "record": zone.get_record(recordname, recordtype)}
-        if not protected:
-            form = deform.Form(schema, buttons=('submit',))
-        else:
-            form = deform.Form(schema)
-
-        if record:
-            response["form"] = form.render(record)
-        else:
-            response["form"] = form.render()
-
-        if 'submit' in self.request.POST:
+        if self.request.POST and not protected:
             controls = self.request.POST.items()
             try:
                 data = form.validate(controls)
             except ValidationVailure, e:
-                if record:
-                    response['form'] = e.render(record)
-                else:
-                    response['form'] = e.render()
-            if not protected:
-                zone.add_record(data['name'],
-                            data['recordtype'],
-                            data['target'])
-                zone.save()
+                response['form'] = e.render()
+                return response
             else:
-                # Return 403 (No editable)
-                pass
+                zone.add_record(data['name'],
+                                data['recordtype'],
+                                data['target'])
+                zone.save()
+
+        record = zone.get_record(recordname, recordtype)
+        response['form'] = form.render(record)
         return response
+
 
     @view_config(renderer="templates/applychanges.pt", route_name="apply")
     def applychanges(self):

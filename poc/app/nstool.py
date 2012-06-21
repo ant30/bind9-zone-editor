@@ -11,6 +11,9 @@ class NsZone:
         self.name = name
         self.file = file
         self.zone = easyzone.zone_from_file(name, file)
+        self.reload_data()
+
+    def reload_data(self):
         self.records = []
         for (name, item) in self.zone.names.items():
             for record_type in ('A', 'MX', 'CNAME'):
@@ -19,7 +22,7 @@ class NsZone:
                     values = ' '.join(record.items)
                     self.records.append({'name': name,
                                          'recordtype': record_type,
-                                         'target': values
+                                         'target': values,
                                         })
 
     def get_records(self, name=None, record_type=None, name_exact=None):
@@ -71,6 +74,7 @@ class NsZone:
             for item in record.items:
                 record.delete(item)
             record.add(str(target))
+        self.reload_data()
 
     def update_serial(self):
         root = self.zone.get_root()
