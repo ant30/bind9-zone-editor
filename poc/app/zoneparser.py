@@ -5,7 +5,8 @@ import re
 # SERIAL = yyyymmddnn ; serial
 EXPRESIONS = {
     'serial':re.compile(r'(?P<serial>\d{10}) *; *serial'),
-    'record':re.compile(r'^(?P<name>(?:[a-zA-Z0-9-.]*|@)) *(?P<recordtype>A|CNAME) *(?P<target>[a-zA-Z0-9-.]*)(?: *;(?P<comment>.*)$|)')
+    'record':re.compile(r'^(?P<name>(?:[a-zA-Z0-9-.]*|@)) *(?:(?P<preference>\d+) *IN *)(?P<recordtype>A|CNAME) *(?P<target>[a-zA-Z0-9-.]*)'
+                        r'(?: *;(?P<comment>.*)$|)')
 }
 
 zonefile = open('db.sevi.mobi')
