@@ -18,6 +18,7 @@ class Zone(object):
     def __init__(self, domain, filename):
         self.domain = domain
         self.filename = filename
+        self.serial = None
         self.names = dict()
         zonefile = open(self.filename, 'r')
         for line in zonefile.readlines():
@@ -103,7 +104,7 @@ class Zone(object):
                 return n.find(name) >= 0
             filters.append(filter_name)
 
-        if record_type:
+        if recordtype:
             def filter_type(n, rt):
                 return rt == recordtype
             filters.append(filter_type)
@@ -114,15 +115,20 @@ class Zone(object):
             filters.append(filter_name)
 
 
-        records = self.records
         if filters:
             return filter(lambda (n, rt): all([f(n, rt) for f in filters]),
-                         records)
+                         self.names)
         else:
-            return records
+            return self.names
 
     def get_record(self, name, rtype):
-        return self.names[(name, rtype)]
+        record = self.names[(name, rtype)]
+        return {'name': name,
+                'recordtype': rtype,
+                'target': record['target'],
+                'comment': record['comment'],
+                }
+
 
     def add_record(self, name, recordtype, target, description=None, preference=None):
         if name.endswith(self.domain):

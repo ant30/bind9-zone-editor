@@ -7,7 +7,7 @@ from pyramid.httpexceptions import HTTPFound, HTTPForbidden
 
 from layouts import Layouts
 
-from nstool import NsZone
+from zoneparser import Zone
 
 import settings
 
@@ -24,6 +24,7 @@ class Record(colander.MappingSchema):
                     widget=deform.widget.SelectWidget(values=recordtype_choices)
                 )
     target = colander.SchemaNode(colander.String())
+    comment = colander.SchemaNode(colander.String())
 
 
 class ZoneViews(Layouts):
@@ -40,17 +41,18 @@ class ZoneViews(Layouts):
     def zone_view(self):
         zonename = self.request.matchdict['zonename']
         zonefile = settings.zones[zonename]
-        zone = NsZone(zonename, zonefile)
+        zone = Zone(zonename, zonefile)
         records = zone.get_records()
-
-        for record in records:
-            if record['name'] in settings.protected_zones:
-                record['protected'] = True
-            else:
-                record['protected'] = False
+        entries = []
+        for (name, recordtype) in records:
+            protected = name in settings.protected_zones
+            entries.append({'name':name,
+                            'recordtype':recordtype,
+                            'target': records[(name, recordtype)]['target'],
+                            'protected': protected})
 
         return {"zonename": zonename,
-                "records": records,
+                "records": entries,
                 }
 
 
@@ -60,7 +62,7 @@ class ZoneViews(Layouts):
 
         zonename = self.request.matchdict['zonename']
         zonefile = settings.zones[zonename]
-        zone = NsZone(zonename, zonefile)
+        zone = Zone(zonename, zonefile)
         protected = recordname in settings.protected_zones
 
         schema = Record()
@@ -96,7 +98,7 @@ class ZoneViews(Layouts):
         recordtype = self.request.matchdict['recordtype']
         recordname = self.request.matchdict['recordname']
         zonefile = settings.zones[zonename]
-        zone = NsZone(zonename, zonefile)
+        zone = Zone(zonename, zonefile)
         protected = recordname in settings.protected_zones
         response = {"zonename": zonename}
 
@@ -133,7 +135,7 @@ class ZoneViews(Layouts):
     def applychanges(self):
         zonename = self.request.matchdict['zonename']
         zonefile = settings.zones[zonename]
-        zone = NsZone(zonename, zonefile)
+        zone = Zone(zonename, zonefile)
         msg = ''
         zone.apply()
         return {"zonename": zonename,
