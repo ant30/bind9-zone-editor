@@ -142,7 +142,7 @@ def name_is_protected(zonename, name):
 
     return (hasattr(settings, 'protected_names') and
             zonename in settings.protected_names and
-            name in settings.protected_names[name])
+            name in settings.protected_names[zonename])
 
 def get_rndc_command():
     return getattr(settings, 'rndc_command', 'rndc')
