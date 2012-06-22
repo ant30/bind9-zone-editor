@@ -4,11 +4,11 @@
     <a href="/${zonename}/applychanges">Apply Changes</a>
     <a href="/${zonename}/add">Add Name</a>
      <ul>
-         <li tal:repeat="record records">
-             <span tal:condition="record.protected">Protected</span>
-             <a href="/${zonename}/${record.name}/${record.recordtype}">${record.name}</a>
-             <span>${record.recordtype}</span>
-             <span>${record.target}</span>
+         <li tal:repeat="entry entries">
+             <span tal:condition="entry.protected">Protected</span>
+             <a href="/${zonename}/${entry.record.name}">${entry.record.name}</a>
+             <span>${entry.record.type}</span>
+             <span>${entry.record.target}</span>
          </li>
      </ul>
     </div>

@@ -3,11 +3,11 @@ import deform
 import colander
 
 from pyramid.view import view_config
-from pyramid.httpexceptions import HTTPFound, HTTPForbidden
+from pyramid.httpexceptions import HTTPFound, HTTPForbidden, HTTPCreated
 
 from layouts import Layouts
 
-from zoneparser import Zone
+from zoneparser import Zone, zone_reload_signal, ZoneReloadError
 
 import settings
 
@@ -15,7 +15,6 @@ import settings
 recordtype_choices = (
     ('CNAME', 'CNAME'),
     ('A', 'A'),
-    ('MX', 'MX'),
 )
 
 class Record(colander.MappingSchema):
@@ -24,6 +23,7 @@ class Record(colander.MappingSchema):
                     widget=deform.widget.SelectWidget(values=recordtype_choices)
                 )
     target = colander.SchemaNode(colander.String())
+    weight = colander.SchemaNode(colander.Integer())
     comment = colander.SchemaNode(colander.String())
 
 
@@ -44,31 +44,26 @@ class ZoneViews(Layouts):
         zone = Zone(zonename, zonefile)
         records = zone.get_records()
         entries = []
-        for (name, recordtype) in records:
-            protected = name in settings.protected_zones
-            entries.append({'name':name,
-                            'recordtype':recordtype,
-                            'target': records[(name, recordtype)]['target'],
+        for record in records:
+            protected = name_is_protected(zonename, record.name)
+            entries.append({'record':record,
                             'protected': protected})
 
         return {"zonename": zonename,
-                "records": entries,
+                "entries": entries,
+                "serial": zone.serial,
                 }
-
-
 
     @view_config(renderer="templates/record.pt", route_name="record_add")
     def record_add(self):
-
         zonename = self.request.matchdict['zonename']
         zonefile = settings.zones[zonename]
         zone = Zone(zonename, zonefile)
-        protected = recordname in settings.protected_zones
 
         schema = Record()
-
         form = deform.Form(schema, buttons=('submit',))
 
+        response = {"zonename": zonename}
         response["form"] = form.render()
 
         if 'submit' in self.request.POST:
@@ -76,30 +71,29 @@ class ZoneViews(Layouts):
             try:
                 data = form.validate(controls)
             except ValidationVailure, e:
-                if record:
-                    response['form'] = e.render(record)
-                    return response
-                else:
-                    response['form'] = e.render()
-            if data['name'] not in protected_zones:
-                zone.add_record(data['name'],
-                                data['recordtype'],
-                                data['target'])
-                zone.save()
+                response['form'] = e.render()
+                return response
+            if not name_is_protected(zonename, data['name']):
+                zone.add_record(**data)
+                response = HTTPFound()
+                response.location = self.request.route_url('record',
+                                                            zonename=zonename,
+                                                            recordname=data['name'])
+                return response
             else:
                 return HTTPForbidden()
-        return HTTPFound(location=request.url('zone', zonename))
+
+        return response
 
 
     @view_config(renderer="templates/record.pt", route_name="record")
     def record_edit(self):
 
         zonename = self.request.matchdict['zonename']
-        recordtype = self.request.matchdict['recordtype']
         recordname = self.request.matchdict['recordname']
         zonefile = settings.zones[zonename]
         zone = Zone(zonename, zonefile)
-        protected = recordname in settings.protected_zones
+        protected = name_is_protected(zonename, recordname)
         response = {"zonename": zonename}
 
         if self.request.POST and protected:
@@ -107,13 +101,13 @@ class ZoneViews(Layouts):
 
         elif protected:
             response['protected'] = protected
-            response['record'] = record
+            response['record'] = zone.get_record(recordname)
             return response
 
         schema = Record()
         form = deform.Form(schema, buttons=('submit',))
 
-        if self.request.POST and not protected:
+        if self.request.POST:
             controls = self.request.POST.items()
             try:
                 data = form.validate(controls)
@@ -121,23 +115,34 @@ class ZoneViews(Layouts):
                 response['form'] = e.render()
                 return response
             else:
-                zone.add_record(data['name'],
-                                data['recordtype'],
-                                data['target'])
-                zone.save()
+                zone.add_record(**data)
+                response = HTTPFound()
+                response.location = self.request.route_url('record',
+                                                            zonename=zonename,
+                                                            recordname=data['name'])
 
-        record = zone.get_record(recordname, recordtype)
-        response['form'] = form.render(record)
+        record = zone.get_record(recordname)
+        response['form'] = form.render(record.todict())
         return response
 
 
     @view_config(renderer="templates/applychanges.pt", route_name="apply")
     def applychanges(self):
         zonename = self.request.matchdict['zonename']
-        zonefile = settings.zones[zonename]
-        zone = Zone(zonename, zonefile)
-        msg = ''
-        zone.apply()
-        return {"zonename": zonename,
-                "msg": msg,
-                }
+        try:
+            zone_reload_signal(zonename, get_rndc_command())
+        except ZoneReloadError, e:
+            return {"zonename": zonename,
+                    "msg": e.message,
+                    }
+
+        return {"zonename": zonename }
+
+def name_is_protected(zonename, name):
+
+    return (hasattr(settings, 'protected_names') and
+            zonename in settings.protected_names and
+            name in settings.protected_names[name])
+
+def get_rndc_command():
+    return getattr(settings, 'rndc_command', 'rndc')

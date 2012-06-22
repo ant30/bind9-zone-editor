@@ -19,7 +19,9 @@
                 <li><strong>Protected Zone</strong></li>
                 <li><label>Name:</label>${record.name}</li>
                 <li><label>Record Type:</label>${record.recordtype}</li>
-                <li><label>Name:</label>${record.target}</li>
+                <li><label>Target:</label>${record.target}</li>
+                <li><label>Weight:</label>${record.weight}</li>
+                <li><label>Comment:</label>${record.comment}</li>
             </ul>
         </div>
     </div>
