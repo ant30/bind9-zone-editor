@@ -1,17 +1,41 @@
 <div metal:use-macro="view.global_template">
+
+    <metal metal:fill-slot="appendbreadcrumb">
+        <li class="active">
+           <a href="/${zonename}">${zonename}</a> <span class="divider"></span>
+        </li>
+    </metal>
+
+
     <div metal:fill-slot="content">
     <h2>${zonename}</h2>
-    <a href="/">Home</a>
-    <a href="/${zonename}/applychanges">Apply Changes</a>
-    <a href="/${zonename}/add">Add Name</a>
-     <ul>
-         <li tal:repeat="entry entries">
-             <span tal:condition="entry.protected">Protected</span>
-             <a tal:condition="not:entry.protected" href="/${zonename}/${entry.record.name}/delete">Delete</a>
-             <a href="/${zonename}/${entry.record.name}">${entry.record.name}</a>
-             <span>${entry.record.type}</span>
-             <span>${entry.record.target}</span>
-         </li>
-     </ul>
+    <div class="btn-toolbar">
+        <a class="btn" href="/${zonename}/applychanges">Apply Changes</a>
+        <a class="btn" href="/${zonename}/add">Add Name</a>
+    </div>
+    <table class="table table-condensed">
+        <thead>
+            <tr>
+                <th>Actions</th>
+                <th>Name</th>
+                <th>Record Type</th>
+                <th>Target</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr tal:repeat="entry entries">
+             <td>
+                 <i alt="Protected" class="icon-lock" tal:condition="entry.protected"></i>
+                 <a tal:condition="not:entry.protected" href="/${zonename}/${entry.record.name}/delete">
+                     <i alt="Delete" class="icon-remove"></i></a>
+                 <a tal:condition="not:entry.protected" href="/${zonename}/${entry.record.name}">
+                     <i alt="Edit" class="icon-edit"></i></a>
+             </td>
+             <td><a href="/${zonename}/${entry.record.name}">${entry.record.name}</a></td>
+             <td><span>${entry.record.type}</span></td>
+             <td><span>${entry.record.target}</span></td>
+           </tr>
+       </tbody>
+    </table>
     </div>
 </div>

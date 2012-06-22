@@ -11,6 +11,7 @@ requires = [
     'pyramid_debugtoolbar',
     'waitress',
     'deform',
+    'deform_bootstrap',
     ]
 
 setup(name='bind9-zone-editor',

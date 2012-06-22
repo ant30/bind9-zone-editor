@@ -6,6 +6,8 @@ def main(global_config, **settings):
     config = Configurator(settings=settings)
     config.add_static_view('static', 'static/',
                            cache_max_age=86400)
+    config.add_static_view('img', 'static/img/',
+                           cache_max_age=86400)
     config.add_static_view('deform_static', 'deform:static')
 
     config.add_route('favicon', 'favicon.ico')
