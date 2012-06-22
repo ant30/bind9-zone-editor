@@ -6,7 +6,7 @@
       metal:define-macro="layout">
 <head>
     <title>Zone Editor</title>
-    <link rel="shortcut icon" href="${request.static_url('myproject:static/favicon.ico')}" />
+    <link rel="shortcut icon" href="${request.static_url('bind9zoneeditor:static/favicon.ico')}" />
     <metal metal:define-slot="extrastatic">
     </metal>
 </head>

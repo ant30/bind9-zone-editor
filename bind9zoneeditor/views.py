@@ -9,7 +9,7 @@ from layouts import Layouts
 
 from zoneparser import Zone, zone_reload_signal, ZoneReloadError
 
-import settings
+from bind9zoneeditor import settings
 
 
 recordtype_choices = (
