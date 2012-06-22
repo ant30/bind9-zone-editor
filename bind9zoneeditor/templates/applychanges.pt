@@ -1,0 +1,12 @@
+<div metal:use-macro="view.global_template">
+    <div metal:fill-slot="content">
+       <h2><a href="/${zonename}">${zonename}</a></h2>
+       <tal:condition tal:condition="exists:msg">
+            <p>There are errors</p>
+            <textarea disabled=1>${msg}</textarea>
+       </tal:condition>
+       <tal:condition tal:condition="not:exists:msg">
+            <p>All ok</p>
+       </tal:condition>
+    </div>
+</div>

@@ -1,0 +1,17 @@
+<div metal:use-macro="view.global_template">
+    <div metal:fill-slot="content">
+    <h2>${zonename}</h2>
+    <a href="/">Home</a>
+    <a href="/${zonename}/applychanges">Apply Changes</a>
+    <a href="/${zonename}/add">Add Name</a>
+     <ul>
+         <li tal:repeat="entry entries">
+             <span tal:condition="entry.protected">Protected</span>
+             <a tal:condition="not:entry.protected" href="/${zonename}/${entry.record.name}/delete">Delete</a>
+             <a href="/${zonename}/${entry.record.name}">${entry.record.name}</a>
+             <span>${entry.record.type}</span>
+             <span>${entry.record.target}</span>
+         </li>
+     </ul>
+    </div>
+</div>

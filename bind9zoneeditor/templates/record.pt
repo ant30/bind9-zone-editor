@@ -1,0 +1,31 @@
+<div metal:use-macro="view.global_template">
+    <metal metal:fill-slot="extrastatic">
+        <link rel="stylesheet" href="/deform_static/css/form.css"
+              type="text/css"
+                />
+        <script type="text/javascript"
+                src="/deform_static/scripts/jquery-1.4.2.min.js"></script>
+        <script type="text/javascript"
+                src="/deform_static/scripts/deform.js"></script>
+        <script type="text/javascript">
+            deform.load()
+        </script>
+    </metal>
+    <div metal:fill-slot="content">
+        <h2><a href="/${zonename}">${zonename}</a></h2>
+        <div tal:condition="exists:form" tal:content="structure form"></div>
+        <div tal:condition="exists:form">
+            <a href="${request.path}/delete">Delete</a>
+        </div>
+        <div tal:condition="exists:record">
+            <ul>
+                <li><strong>Protected Zone</strong></li>
+                <li><label>Name:</label>${record.name}</li>
+                <li><label>Record Type:</label>${record.recordtype}</li>
+                <li><label>Target:</label>${record.target}</li>
+                <li><label>Weight:</label>${record.weight}</li>
+                <li><label>Comment:</label>${record.comment}</li>
+            </ul>
+        </div>
+    </div>
+</div>

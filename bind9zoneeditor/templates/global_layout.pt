@@ -1,0 +1,20 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+        "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:metal="http://xml.zope.org/namespaces/metal"
+      xmlns:tal="http://xml.zope.org/namespaces/tal"
+      metal:define-macro="layout">
+<head>
+    <title>Zone Editor</title>
+    <link rel="shortcut icon" href="${request.static_url('myproject:static/favicon.ico')}" />
+    <metal metal:define-slot="extrastatic">
+    </metal>
+</head>
+<body>
+<div id="main"><h1>Zone Editor</h1>
+    <div metal:define-slot="content">
+        <p>CONTENT BLOCK</p>
+    </div>
+</div>
+</body>
+</html>
