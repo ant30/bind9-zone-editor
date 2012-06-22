@@ -156,5 +156,3 @@ class Zone(object):
         return self.serial
 
 
-z = Zone('sevi.mobi', 'db.sevi.mobi')
-print z.names
