@@ -70,7 +70,7 @@ class ZoneViews(Layouts):
             controls = self.request.POST.items()
             try:
                 data = form.validate(controls)
-            except ValidationVailure, e:
+            except ValidationFailure, e:
                 response['form'] = e.render()
                 return response
             if not name_is_protected(zonename, data['name']):
@@ -86,9 +86,23 @@ class ZoneViews(Layouts):
         return response
 
 
+    @view_config(route_name="record_delete")
+    def record_delete(self):
+        zonename = self.request.matchdict['zonename']
+        recordname = self.request.matchdict['recordname']
+        zonefile = settings.zones[zonename]
+        zone = Zone(zonename, zonefile)
+        if name_is_protected(zonename, recordname):
+            raise HTTPForbidden("You can not modify this domain name")
+
+        zone.del_record(recordname)
+        response = HTTPFound()
+        response.location = self.request.route_url('zoneview',
+                                                    zonename=zonename)
+        return response
+
     @view_config(renderer="templates/record.pt", route_name="record")
     def record_edit(self):
-
         zonename = self.request.matchdict['zonename']
         recordname = self.request.matchdict['recordname']
         zonefile = settings.zones[zonename]
@@ -111,7 +125,7 @@ class ZoneViews(Layouts):
             controls = self.request.POST.items()
             try:
                 data = form.validate(controls)
-            except ValidationVailure, e:
+            except ValidationFailure, e:
                 response['form'] = e.render()
                 return response
             else:
@@ -124,7 +138,6 @@ class ZoneViews(Layouts):
         record = zone.get_record(recordname)
         response['form'] = form.render(record.todict())
         return response
-
 
     @view_config(renderer="templates/applychanges.pt", route_name="apply")
     def applychanges(self):
@@ -139,7 +152,6 @@ class ZoneViews(Layouts):
         return {"zonename": zonename }
 
 def name_is_protected(zonename, name):
-
     return (hasattr(settings, 'protected_names') and
             zonename in settings.protected_names and
             name in settings.protected_names[zonename])

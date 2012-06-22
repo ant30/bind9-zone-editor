@@ -11,8 +11,7 @@ PARSER_RE = {
 }
 
 MATCH_RE_STR = {
-    'record':r'^%(name)s *%(rtype)s',
-    'record_p':r'^{name} *(?:\d+ *|)(?:IN *|){rtype}',
+    'record':r'^{name} *(?:\d+ *|)(?:IN *|){rtype}',
     'serial':r'(?P<serial>\d{10}) *; *serial',
 }
 
@@ -84,19 +83,37 @@ class ZoneFile(object):
         lines = zonefile.readlines()
         zonefile.close()
         n = 0
-        while n < len(lines):
-            if match.match(lines[n]):
-                lines[n] = self.__str_record(record)
-                break
+        while n < len(lines) and not match.match(lines[n]):
             n += 1
 
         if n == len(lines):
             lines.append(self.__str_record(record))
+        else:
+            lines[n] = self.__str_record(record)
 
         zonefile = open(self.filename, 'w')
         zonefile.writelines(lines)
         zonefile.close()
 
+
+    def remove_record(self, record):
+        match = re.compile(MATCH_RE_STR['record'].format(name=record.name,
+                                                         rtype=record.type))
+        zonefile = open(self.filename, 'r')
+        lines = zonefile.readlines()
+        zonefile.close()
+        n = 0
+        while n < len(lines) and not match.match(lines[n]):
+            n += 1
+
+        if n == len(lines):
+            raise KeyError("Not Found, %s can't be deleted" % record.name)
+        else:
+            del lines[n]
+
+        zonefile = open(self.filename, 'w')
+        zonefile.writelines(lines)
+        zonefile.close()
 
     def save_serial(self, serial):
         match = re.compile(MATCH_RE_STR['serial'])
@@ -106,14 +123,16 @@ class ZoneFile(object):
         zonefile.close()
 
         n = 0
-        while n < len(lines):
+        while n < len(lines) and not match.match(lines[n]):
             if match.match(lines[n]):
-                lines[n] = self.__str_serial()
+
                 break
             n += 1
 
         if n == len(lines):
             raise KeyError("Serial not found in file %s" % self.filename)
+        else:
+            lines[n] = self.__str_serial()
 
         zonefile = open(self.filename, 'w')
         zonefile.writelines(lines)
@@ -126,11 +145,11 @@ class Zone(object):
         self.domain = domain
         self.zonefile = ZoneFile(filename)
         (self.serial, self.names) = self.zonefile.readfile()
-
         assert self.serial, "ERROR: Serial is undefined on %s" % self.filename
 
-    def del_record(self, record):
-        del self.names[str(record)]
+    def del_record(self, name):
+        self.zonefile.remove_record(self.names[name])
+        del self.names[name]
 
     def get_record(self, name):
         return self.names[name]

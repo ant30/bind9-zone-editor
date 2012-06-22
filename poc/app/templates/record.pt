@@ -14,6 +14,9 @@
     <div metal:fill-slot="content">
         <h2><a href="/${zonename}">${zonename}</a></h2>
         <div tal:condition="exists:form" tal:content="structure form"></div>
+        <div tal:condition="exists:form">
+            <a href="${request.path}/delete">Delete</a>
+        </div>
         <div tal:condition="exists:record">
             <ul>
                 <li><strong>Protected Zone</strong></li>

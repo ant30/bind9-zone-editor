@@ -10,6 +10,7 @@ def main():
     config.add_static_view('deform_static', 'deform:static')
 
     config.add_route('favicon', 'favicon.ico')
+    config.add_route('record_delete', '{zonename}/{recordname}/delete')
     config.add_route('record_add', '{zonename}/add')
     config.add_route('apply', '{zonename}/applychanges')
     config.add_route('record', '{zonename}/{recordname}')

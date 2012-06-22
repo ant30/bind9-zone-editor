@@ -7,6 +7,7 @@
      <ul>
          <li tal:repeat="entry entries">
              <span tal:condition="entry.protected">Protected</span>
+             <a tal:condition="not:entry.protected" href="/${zonename}/${entry.record.name}/delete">Delete</a>
              <a href="/${zonename}/${entry.record.name}">${entry.record.name}</a>
              <span>${entry.record.type}</span>
              <span>${entry.record.target}</span>
