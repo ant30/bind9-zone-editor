@@ -2,5 +2,3 @@ pyramid
 WebTest
 nose
 deform
-dnspython
-easyzone

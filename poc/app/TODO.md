@@ -2,7 +2,7 @@ TODO bind9 zone editor
 ======================
 
 1. [X] Serial Increment on apply changes
-1. [ ] Change CNAME
+1. [X] Change CNAME / A type
 1. [ ] Error Handler
 1. [ ] Simple Validators (valid IP, ns formar name...)
 1. [ ] CNAME check (internal references only)
@@ -10,4 +10,4 @@ TODO bind9 zone editor
 1. [ ] Paginated list
 1. [ ] In zone searcher
 1  [ ] Autocomplete in CNAME
-1. [ ] CSS Styles
+1. [ ] Set appropiate Look & feel
