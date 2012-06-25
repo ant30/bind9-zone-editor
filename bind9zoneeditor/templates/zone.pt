@@ -5,20 +5,29 @@
     </metal>
 
 
+
     <div metal:fill-slot="content">
     <h2>${zonename}</h2>
-    <div class="btn-toolbar">
+
+
+    <div class="well btn-toolbar">
         <a class="btn" href="/${zonename}/applychanges">Apply Changes</a>
         <a class="btn" href="/${zonename}/add">Add Name</a>
+
+        <div class="paginator pull-right"
+            tal:content='structure python:entries.pager(curpage_attr={"class":"btn primary btn-small disabled"},\
+                                                    dotdot_attr={"class":"btn btn-small disabled"},\
+                                                    link_attr={"class":"btn btn-small"})'>
+        </div>
+
+        <div class="searcher pull-left">
+            <form class="form-search" href=".">
+                <input type="search" name="search" class="input-medium" placeholder="Search"/>
+            </form>
+        </div>
+
     </div>
-    <div class="pagination"
-        tal:content='structure python:entries.pager(curpage_attr={"class":"active"})'>
-    </div>
-    <div class="searcher">
-        <form class="" href=".">
-            <input type="text" name="search" class="search-query span2" placeholder="Search"/>
-        </form>
-    </div>
+
     <table class="table table-condensed">
         <thead>
             <tr>
