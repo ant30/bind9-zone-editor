@@ -1,10 +1,8 @@
 <div metal:use-macro="view.global_template">
 
-        <li class="active">
-           <a href="/${zonename}">${zonename}</a> <span class="divider"></span>
-        </li>
 
-    <metal metal:fill-slot="extrastatic">
+
+    <metal metal:fill-slot="extrastatic" tal:omit-tag="">
         <link rel="stylesheet" href="/deform_static/css/form.css"
               type="text/css"/>
 
@@ -22,6 +20,15 @@
             deform.load()
         </script>
     </metal>
+
+
+    <metal metal:fill-slot="breadcrumb" tal:omit-tag="">
+        <li>
+           <a href="/${zonename}">${zonename}</a> <span class="divider">/</span>
+        </li>
+        <li class="active">${recordname}</li>
+    </metal>
+
     <div metal:fill-slot="content">
         <h2><a href="/${zonename}">${zonename}</a></h2>
         <div tal:condition="exists:form" tal:content="structure form"></div>

@@ -36,6 +36,8 @@
 
 <ul class="breadcrumb">
     <li><a href="/">Home</a> <span class="divider">/</span></li>
+    <metal tal:omit-tag="" metal:define-slot="breadcrumb">
+    </metal>
 </ul>
 
     <div metal:define-slot="content">

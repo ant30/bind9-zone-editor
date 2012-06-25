@@ -1,9 +1,7 @@
 <div metal:use-macro="view.global_template">
 
-    <metal metal:fill-slot="appendbreadcrumb">
-        <li class="active">
-           <a href="/${zonename}">${zonename}</a> <span class="divider"></span>
-        </li>
+    <metal metal:fill-slot="breadcrumb" tal:omit-tag="">
+        <li class="active">${zonename}</li>
     </metal>
 
 

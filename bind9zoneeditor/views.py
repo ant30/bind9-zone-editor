@@ -1,3 +1,5 @@
+import re
+
 from deform import Form
 import deform
 import colander
@@ -17,6 +19,10 @@ recordtype_choices = (
     ('A', 'A'),
 )
 
+
+RE_IP = r"^(?:\d{1,3}\.){3}(?:\d{1,3})$"
+RE_NAME =  r"^[\w.]+[^.]$"
+
 class Record(colander.MappingSchema):
     name = colander.SchemaNode(colander.String())
     type = colander.SchemaNode(colander.String(),
@@ -24,7 +30,25 @@ class Record(colander.MappingSchema):
                 )
     target = colander.SchemaNode(colander.String())
     weight = colander.SchemaNode(colander.Integer())
-    comment = colander.SchemaNode(colander.String())
+    comment = colander.SchemaNode(colander.String(),
+                                  missing=unicode(""))
+
+
+def record_validator(form, value):
+    if value['type'] == 'A':
+        if not re.match(RE_IP, value['target']):
+            exc = colander.Invalid(form, 'Invalid targe value using A record type')
+            exc['target'] = colander.Invalid
+                  form, "A IP value is required (255.255.255.255)")
+            raise exc
+    elif value['type'] == 'CNAME':
+        if not re.match(RE_NAME, value['target']):
+            exc = colander.Invalid(form, 'Invalid targe value using A record type')
+            exc['target'] = colander.Invalid(
+                  form, "A NAME value is required 'ej2' for 'ej2.example.com' ")
+            raise exc
+
+
 
 
 class ZoneViews(Layouts):
@@ -60,17 +84,18 @@ class ZoneViews(Layouts):
         zonefile = settings.zones[zonename]
         zone = Zone(zonename, zonefile)
 
-        schema = Record()
+        schema = Record(validator=record_validator)
         form = deform.Form(schema, buttons=('submit',))
 
-        response = {"zonename": zonename}
+        response = {"zonename": zonename,
+                    "recordname": "new"}
         response["form"] = form.render()
 
         if 'submit' in self.request.POST:
             controls = self.request.POST.items()
             try:
                 data = form.validate(controls)
-            except ValidationFailure, e:
+            except deform.ValidationFailure, e:
                 response['form'] = e.render()
                 return response
             if not name_is_protected(zonename, data['name']):
@@ -108,7 +133,8 @@ class ZoneViews(Layouts):
         zonefile = settings.zones[zonename]
         zone = Zone(zonename, zonefile)
         protected = name_is_protected(zonename, recordname)
-        response = {"zonename": zonename}
+        response = {"zonename": zonename,
+                    "recordname": recordname}
 
         if self.request.POST and protected:
             return HTTPForbidden("You can not modify this domain name")
@@ -118,14 +144,14 @@ class ZoneViews(Layouts):
             response['record'] = zone.get_record(recordname)
             return response
 
-        schema = Record()
+        schema = Record(validator=record_validator)
         form = deform.Form(schema, buttons=('submit',))
 
         if self.request.POST:
             controls = self.request.POST.items()
             try:
                 data = form.validate(controls)
-            except ValidationFailure, e:
+            except deform.ValidationFailure, e:
                 response['form'] = e.render()
                 return response
             else:
