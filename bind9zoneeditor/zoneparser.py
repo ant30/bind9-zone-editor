@@ -7,7 +7,7 @@ PARSER_RE = {
     'record':re.compile(r'^(?P<name>(?:[a-zA-Z0-9-.]*|@)) *(?:(?P<weight>\d+)'
                         r' *|)(?:IN *|)(?P<type>A|CNAME)'
                         r' *(?P<target>[a-zA-Z0-9-.]*)'
-                        r'(?: *;(?P<comment>.*)$|)'),
+                        r'(?:(?: *|);(?P<comment>.*)$|)'),
 }
 
 MATCH_RE_STR = {
@@ -61,24 +61,24 @@ class ZoneFile(object):
         return (serial, names)
 
     def __str_record(self, record):
+        recordstr = record.name
         if record.weight:
-            return "%s %s %s ;%s" % (record.name,
-                                     record.type,
-                                     record.target,
-                                     record.comment)
-        else:
-            return "%s %s %s %s;%s" % (record.name,
-                                       record.type,
-                                       record.weight,
-                                       record.target,
-                                       record.comment)
+            recordstr += " {0}".format(str(record.weight))
+
+        recordstr += " {type} {target}".format(type=record.type,
+                                              target=record.target)
+        if record.comment:
+            recordstr += ";{0}".format(record.comment)
+
+        recordstr += '\n'
+        return recordstr
 
     def __str_serial(self, serial):
-        return "%s ;serial aaaammdd" % serial
+        return "%s ;serial aaaammdd\n" % serial
 
     def save_record(self, record):
-        match = re.compile(MATCH_RE_STR['record'] % {'name':record.name,
-                                                     'rtype': record.type})
+        match = re.compile(MATCH_RE_STR['record'].format(name=record.name,
+                                                         rtype=record.type))
         zonefile = open(self.filename, 'r')
         lines = zonefile.readlines()
         zonefile.close()
@@ -92,6 +92,7 @@ class ZoneFile(object):
             lines[n] = self.__str_record(record)
 
         zonefile = open(self.filename, 'w')
+        print lines
         zonefile.writelines(lines)
         zonefile.close()
 
@@ -154,7 +155,7 @@ class Zone(object):
     def get_record(self, name):
         return self.names[name]
 
-    def get_records(self, name=None, recordtype=None, target=None,
+    def get_records(self, name=None, type=None, target=None,
                     name_exact=None):
         filters = []
 
@@ -163,9 +164,9 @@ class Zone(object):
                 return r.name.find(name) >= 0
             filters.append(filter_name)
 
-        if recordtype:
+        if type:
             def filter_type(r):
-                return r.type == recordtype
+                return r.type == type
             filters.append(filter_type)
 
         if target:
@@ -184,7 +185,7 @@ class Zone(object):
         else:
             return self.names.values()
 
-    def add_record(self, name, recordtype, target, comment='', weight=0):
+    def add_record(self, name, type, target, comment='', weight=0):
         if name.endswith(self.domain):
             entry = name.replace(".%s" % self.domain, "")
         elif name.endswith('.'):
@@ -193,7 +194,7 @@ class Zone(object):
             entry = name
 
         record = Record(name=entry,
-                        type=recordtype,
+                        type=type,
                         target=target,
                         comment=comment,
                         weight=weight)

@@ -19,7 +19,7 @@ recordtype_choices = (
 
 class Record(colander.MappingSchema):
     name = colander.SchemaNode(colander.String())
-    recordtype = colander.SchemaNode(colander.String(),
+    type = colander.SchemaNode(colander.String(),
                     widget=deform.widget.SelectWidget(values=recordtype_choices)
                 )
     target = colander.SchemaNode(colander.String())
@@ -134,6 +134,7 @@ class ZoneViews(Layouts):
                 response.location = self.request.route_url('record',
                                                             zonename=zonename,
                                                             recordname=data['name'])
+                return response
 
         record = zone.get_record(recordname)
         response['form'] = form.render(record.todict())
