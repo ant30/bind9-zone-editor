@@ -13,3 +13,4 @@ TODO bind9 zone editor
 1  [ ] Autocomplete in CNAME
 1. [X] Set appropiate Look & feel
 1. [ ] lock db file zone when is saving
+1. [X] Show an alert before name definition is deleted.
