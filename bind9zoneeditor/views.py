@@ -7,11 +7,13 @@ from webhelpers.paginate import Page, PageURL_WebOb
 
 from pyramid.view import view_config
 from pyramid.httpexceptions import HTTPFound, HTTPForbidden, HTTPCreated
-
+from pyramid.security import remember
+from pyramid.security import forget
 
 from layouts import Layouts
 
 from zoneparser import Zone, zone_reload_signal, ZoneReloadError
+from userdb import UserDB
 
 from bind9zoneeditor import settings
 
@@ -24,6 +26,7 @@ recordtype_choices = (
 
 RE_IP = r"^(?:\d{1,3}\.){3}(?:\d{1,3})$"
 RE_NAME =  r"^[\w.]+[^.]$"
+
 
 class Record(colander.MappingSchema):
     name = colander.SchemaNode(colander.String())
@@ -57,12 +60,14 @@ class ZoneViews(Layouts):
     def __init__(self, request):
         self.request = request
 
-    @view_config(renderer="templates/zone_list.pt", route_name="zonelist")
+    @view_config(renderer="templates/zone_list.pt", route_name="zonelist",
+                 permission="view")
     def zone_list(self):
         zones = settings.zones.keys()
         return {"zones": zones}
 
-    @view_config(renderer="templates/zone.pt", route_name="zoneview")
+    @view_config(renderer="templates/zone.pt", route_name="zoneview",
+                 permission="view")
     def zone_view(self):
         zonename = self.request.matchdict['zonename']
         page = int(self.request.params['page']) if 'page' in self.request.params else 0
@@ -89,7 +94,8 @@ class ZoneViews(Layouts):
                 "serial": zone.serial,
                 }
 
-    @view_config(renderer="templates/record.pt", route_name="record_add")
+    @view_config(renderer="templates/record.pt", route_name="record_add",
+                 permission="edit")
     def record_add(self):
         zonename = self.request.matchdict['zonename']
         zonefile = settings.zones[zonename]
@@ -122,7 +128,8 @@ class ZoneViews(Layouts):
         return response
 
 
-    @view_config(route_name="record_delete")
+    @view_config(route_name="record_delete",
+                 permission="edit")
     def record_delete(self):
         zonename = self.request.matchdict['zonename']
         recordname = self.request.matchdict['recordname']
@@ -137,7 +144,8 @@ class ZoneViews(Layouts):
                                                     zonename=zonename)
         return response
 
-    @view_config(renderer="templates/record.pt", route_name="record")
+    @view_config(renderer="templates/record.pt", route_name="record",
+                 permission="edit")
     def record_edit(self):
         zonename = self.request.matchdict['zonename']
         recordname = self.request.matchdict['recordname']
@@ -177,7 +185,8 @@ class ZoneViews(Layouts):
         response['form'] = form.render(record.todict())
         return response
 
-    @view_config(renderer="templates/applychanges.pt", route_name="apply")
+    @view_config(renderer="templates/applychanges.pt", route_name="apply",
+                 permission="edit")
     def applychanges(self):
         zonename = self.request.matchdict['zonename']
         try:
@@ -188,6 +197,45 @@ class ZoneViews(Layouts):
                     }
 
         return {"zonename": zonename }
+
+
+    @view_config(renderer="templates/login.pt", context=HTTPForbidden)
+    @view_config(renderer="templates/login.pt", route_name="login")
+    def login(self):
+        request = self.request
+        login_url = request.resource_url(request.context, 'login')
+        referrer = request.url
+        if referrer == login_url:
+            referrer = '/' # never use the login form itself as came_from
+        came_from = request.params.get('came_from', referrer)
+        message = ''
+        login = ''
+        password = ''
+        if 'form.submitted' in request.params:
+            login = request.params['login']
+            password = request.params['password']
+            userdb = UserDB(settings.htpasswd_file)
+            if userdb.check_password(login, password):
+                headers = remember(request, login)
+                return HTTPFound(location=came_from,
+                                 headers=headers)
+            message = 'Failed login'
+
+        return dict(
+            page_title="Login",
+            message=message,
+            url=request.application_url + '/login',
+            came_from=came_from,
+            login=login,
+            password=password,
+            )
+
+    @view_config(route_name="logout")
+    def logout(self):
+        headers = forget(self.request)
+        url = self.request.route_url('login')
+        return HTTPFound(location=url, headers=headers)
+
 
 def name_is_protected(zonename, name):
     return (hasattr(settings, 'protected_names') and

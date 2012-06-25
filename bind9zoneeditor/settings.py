@@ -12,6 +12,8 @@ protected_names = {
 
 rndc_command = 'rndc'
 
+htpasswd_file = 'htpasswd'
+
 try:
     from local_settings import *
 except:

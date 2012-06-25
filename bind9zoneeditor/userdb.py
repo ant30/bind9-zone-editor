@@ -9,6 +9,5 @@ class UserDB():
     def get_users(self):
         self.htpasswd.get_users()
 
-    def check_password(self, user, passwd):
-        return htpasswd.check_password(user, password)
-
+    def check_password(self, user, password):
+        return self.htpasswd.check_password(user, password)
