@@ -12,6 +12,7 @@ requires = [
     'waitress',
     'deform',
     'deform_bootstrap',
+    'passlib',
     ]
 
 setup(name='bind9-zone-editor',
