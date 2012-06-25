@@ -5,7 +5,7 @@ TODO bind9 zone editor
 1. [X] Change CNAME / A type
 1. [X] Pyramid Scaffolds starter
 1. [ ] Error Handler
-1. [ ] Simple Validators (valid IP, ns formar name...)
+1. [A] Simple Validators (valid IP, ns formar name...)
 1. [ ] CNAME check (internal references only)
 1. [ ] Login to edit (with LDAP / htpasswd)
 1. [ ] Paginated list
