@@ -3,9 +3,11 @@ import re
 from deform import Form
 import deform
 import colander
+from webhelpers.paginate import Page, PageURL_WebOb
 
 from pyramid.view import view_config
 from pyramid.httpexceptions import HTTPFound, HTTPForbidden, HTTPCreated
+
 
 from layouts import Layouts
 
@@ -38,17 +40,16 @@ def record_validator(form, value):
     if value['type'] == 'A':
         if not re.match(RE_IP, value['target']):
             exc = colander.Invalid(form, 'Invalid targe value using A record type')
-            exc['target'] = colander.Invalid
+            exc['target'] = colander.Invalid(
                   form, "A IP value is required (255.255.255.255)")
             raise exc
+
     elif value['type'] == 'CNAME':
         if not re.match(RE_NAME, value['target']):
             exc = colander.Invalid(form, 'Invalid targe value using A record type')
             exc['target'] = colander.Invalid(
                   form, "A NAME value is required 'ej2' for 'ej2.example.com' ")
             raise exc
-
-
 
 
 class ZoneViews(Layouts):
@@ -64,14 +65,24 @@ class ZoneViews(Layouts):
     @view_config(renderer="templates/zone.pt", route_name="zoneview")
     def zone_view(self):
         zonename = self.request.matchdict['zonename']
+        page = int(self.request.params['page']) if 'page' in self.request.params else 0
+        search = self.request.params['search'] if 'search' in self.request.params else None
         zonefile = settings.zones[zonename]
         zone = Zone(zonename, zonefile)
-        records = zone.get_records()
+
+        if search:
+            records = zone.get_records(name=search)
+        else:
+            records = zone.get_records()
+
         entries = []
         for record in records:
             protected = name_is_protected(zonename, record.name)
             entries.append({'record':record,
                             'protected': protected})
+
+        page_url = PageURL_WebOb(self.request)
+        entries = Page(entries, page, url=page_url)
 
         return {"zonename": zonename,
                 "entries": entries,

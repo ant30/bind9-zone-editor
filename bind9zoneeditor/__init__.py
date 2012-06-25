@@ -1,5 +1,12 @@
 from pyramid.config import Configurator
 
+from pyramid.events import BeforeRender
+
+#from webhelpers.html.tags import helpers
+
+#def add_renderer_globals(event):
+#    event['h'] = helpers
+
 def main(global_config, **settings):
     """ This function returns a Pyramid WSGI application.
     """
@@ -17,6 +24,8 @@ def main(global_config, **settings):
     config.add_route('record', '{zonename}/{recordname}')
     config.add_route('zoneview', '{zonename}')
     config.add_route('zonelist', '')
+
+#    config.add_subscriber(add_renderer_globals, BeforeRender)
 
     config.scan()
 
