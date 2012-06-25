@@ -12,3 +12,4 @@ TODO bind9 zone editor
 1. [ ] In zone searcher
 1  [ ] Autocomplete in CNAME
 1. [ ] Set appropiate Look & feel
+1. [ ] lock db file zone when is saving
