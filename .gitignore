@@ -13,6 +13,7 @@ sdist
 develop-eggs
 .installed.cfg
 local_settings.py
+htpasswd
 db.*
 
 # Installer logs
