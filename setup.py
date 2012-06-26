@@ -13,7 +13,7 @@ requires = [
     'deform',
     'deform_bootstrap',
     'passlib',
-    'webhelper',
+    'webhelpers',
     ]
 
 setup(name='bind9-zone-editor',

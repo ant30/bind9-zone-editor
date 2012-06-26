@@ -13,8 +13,10 @@
     <title>Zone Editor</title>
     <link rel="shortcut icon" href="${app_static}favicon.ico" />
 
+
     <link rel="stylesheet" href="${app_static}bootstrap.css" type="text/css" media="screen" charset="utf-8" />
-    <link rel="stylesheet" href="${app_static}bootstrap-responsive.css" type="text/css" media="screen"/>
+    <link rel="stylesheet" href="${app_static}bootstrap-responsive.css" type="text/css" charset="utf-8" media="screen"/>
+
 
     <script src="${deform_bootstrap_static}jquery-1.7.1.min.js" type="text/javascript"></script>
     <script src="${deform_bootstrap_static}bootstrap.min.js" type="text/javascript"></script>
@@ -28,6 +30,9 @@
 
     <metal metal:define-slot="extrastatic">
     </metal>
+
+    <link rel="stylesheet" href="${app_static}custom.css" type="text/css" media="screen" charset="utf-8"/>
+
 </head>
 <body>
 <div class="navbar">
