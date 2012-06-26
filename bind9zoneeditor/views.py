@@ -211,7 +211,7 @@ class ZoneViews(Layouts):
         message = ''
         login = ''
         password = ''
-        if 'form.submitted' in request.params:
+        if self.request.POST:
             login = request.params['login']
             password = request.params['password']
             userdb = UserDB(settings.htpasswd_file)
